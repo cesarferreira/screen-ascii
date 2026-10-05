@@ -1,0 +1,25 @@
+[package]
+name = "ascii-scrcpy"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Control Android devices through a live ASCII terminal"
+license = "MIT"
+authors = ["Cesar Ferreira"]
+repository = "https://github.com/cesarferreira/ascii-scrcpy"
+
+[[bin]]
+name = "ascii-scrcpy"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+crossterm = "0.29"
+signal-hook = "0.3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
