@@ -1,4 +1,4 @@
-use ascii_scrcpy::video::decode_stream;
+use screen_ascii::video::decode_stream;
 use std::{
     io::Cursor,
     process::Command,

@@ -27,14 +27,14 @@ def adb(*command):
 assert adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1', 'Smoke test requires an emulator'
 if args.binary is None:
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1']))
-    args.binary = Path(metadata['target_directory']) / 'debug' / 'ascii-scrcpy'
+    args.binary = Path(metadata['target_directory']) / 'debug' / 'screen-ascii'
 
 initial_activity = adb('shell', 'dumpsys', 'activity', 'activities')
 match = re.search(r'(?:topResumedActivity|mResumedActivity)=.*? u\d+ ([\w.]+/[\w.]+)', initial_activity)
 initial_component = match.group(1) if match else None
 initial_forward = adb('forward', '--list')
 rotation = {key: adb('shell', 'settings', 'get', 'system', key).strip() for key in ['accelerometer_rotation', 'user_rotation']}
-remote_xml = '/data/local/tmp/ascii-scrcpy-smoke.xml'
+remote_xml = '/data/local/tmp/screen-ascii-smoke.xml'
 process = None
 master = slave = None
 buffer = bytearray()
@@ -157,7 +157,7 @@ try:
     assert termios.tcgetattr(slave) == before_term, 'Terminal attributes were not restored'
     assert '\x1b[?1049l' in output(), 'Alternate screen was not restored'
     assert adb('forward', '--list') == initial_forward, 'Session left an adb tunnel'
-    assert not re.search(r'ascii-scrcpy-[0-9a-f]{8}\.jar', adb('shell', 'ls', '/data/local/tmp')), 'Session left its server jar'
+    assert not re.search(r'screen-ascii-[0-9a-f]{8}\.jar', adb('shell', 'ls', '/data/local/tmp')), 'Session left its server jar'
     print('PASS SIGTERM restores terminal and cleans session', flush=True)
 finally:
     if process and process.poll() is None:

@@ -51,20 +51,20 @@ jobs:
         if: matrix.target != 'x86_64-pc-windows-msvc'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../ascii-scrcpy-${{ matrix.target }}.tar.gz ascii-scrcpy
+          tar czf ../../../screen-ascii-${{ matrix.target }}.tar.gz screen-ascii
           cd ../../..
 
       - name: Package (Windows)
         if: matrix.target == 'x86_64-pc-windows-msvc'
         shell: pwsh
         run: |
-          Compress-Archive -Path "target/${{ matrix.target }}/release/ascii-scrcpy.exe" -DestinationPath "ascii-scrcpy-${{ matrix.target }}.zip"
+          Compress-Archive -Path "target/${{ matrix.target }}/release/screen-ascii.exe" -DestinationPath "screen-ascii-${{ matrix.target }}.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ascii-scrcpy-${{ matrix.target }}
-          path: ascii-scrcpy-${{ matrix.target }}.*
+          name: screen-ascii-${{ matrix.target }}
+          path: screen-ascii-${{ matrix.target }}.*
 
   release:
     name: Release

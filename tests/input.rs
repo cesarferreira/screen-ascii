@@ -1,9 +1,9 @@
-use ascii_scrcpy::{
+use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+use screen_ascii::{
     geometry::Viewport,
     input::TouchState,
     session::{parse_version, select_device},
 };
-use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 fn event(kind: MouseEventKind, column: u16, row: u16) -> MouseEvent {
     MouseEvent {
         kind,

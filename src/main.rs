@@ -1,7 +1,7 @@
 mod ui;
 use anyhow::{Context, Result, ensure};
-use ascii_scrcpy::session::{Config, Session};
 use clap::Parser;
+use screen_ascii::session::{Config, Session};
 use std::{
     io::IsTerminal,
     path::PathBuf,
@@ -32,8 +32,8 @@ struct Cli {
     #[arg(long)]
     no_color: bool,
     /// Screen renderer: detailed coloured blocks or literal ASCII
-    #[arg(long, value_enum, default_value_t = ascii_scrcpy::render::Mode::Blocks)]
-    render: ascii_scrcpy::render::Mode,
+    #[arg(long, value_enum, default_value_t = screen_ascii::render::Mode::Blocks)]
+    render: screen_ascii::render::Mode,
     /// Reverse the brightness-to-character mapping
     #[arg(long)]
     invert: bool,

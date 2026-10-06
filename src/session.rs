@@ -82,7 +82,7 @@ impl Session {
             server_path.display()
         );
         let id = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos() as u32 & 0x7fffffff;
-        let remote = format!("/data/local/tmp/ascii-scrcpy-{id:08x}.jar");
+        let remote = format!("/data/local/tmp/screen-ascii-{id:08x}.jar");
         let mut session = Self {
             serial,
             adb: config.adb,

@@ -49,8 +49,8 @@ run:
 
 # Quick demo
 demo: install
-	@echo "=== ascii-scrcpy demo ==="
-	ascii-scrcpy --help
+	@echo "=== screen-ascii demo ==="
+	screen-ascii --help
 
 # Bump version, regenerate CHANGELOG.md, tag, publish, and push (requires cargo-release + git-cliff)
 release:

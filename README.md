@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>ascii-scrcpy</h1>
+  <h1>screen-ascii</h1>
 
   <p><strong>Control Android devices through a live ASCII terminal</strong></p>
 
@@ -40,7 +40,7 @@ Optionally install the local build:
 
 ```bash
 cargo install --path . --locked
-ascii-scrcpy
+screen-ascii
 ```
 
 <a id="quickstart"></a>

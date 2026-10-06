@@ -1,7 +1,4 @@
 use anyhow::{Context, Result, ensure};
-use ascii_scrcpy::{
-    frame::Frame, geometry::Viewport, input::TouchState, protocol, render, session::Session,
-};
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
     event::{
@@ -14,6 +11,9 @@ use crossterm::{
         self, BeginSynchronizedUpdate, Clear, ClearType, EndSynchronizedUpdate,
         EnterAlternateScreen, LeaveAlternateScreen,
     },
+};
+use screen_ascii::{
+    frame::Frame, geometry::Viewport, input::TouchState, protocol, render, session::Session,
 };
 use std::{
     io::{self, IsTerminal, Write},
@@ -333,7 +333,7 @@ fn draw(
         Clear(ClearType::All)
     )?;
     let header = format!(
-        " ascii-scrcpy | {label} | {}×{} | {}×{} chars",
+        " screen-ascii | {label} | {}×{} | {}×{} chars",
         frame.width, frame.height, view.cols, view.rows
     );
     queue!(

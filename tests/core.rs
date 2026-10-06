@@ -1,4 +1,4 @@
-use ascii_scrcpy::{frame::read_ppm, geometry::Viewport, protocol, render};
+use screen_ascii::{frame::read_ppm, geometry::Viewport, protocol, render};
 use std::io::Cursor;
 
 #[test]
@@ -71,7 +71,7 @@ fn malformed_or_truncated_frames_are_rejected_without_large_allocations() {
 
 #[test]
 fn rendering_averages_pixels_and_can_emit_plain_or_truecolor_ascii() {
-    let frame = ascii_scrcpy::frame::Frame {
+    let frame = screen_ascii::frame::Frame {
         width: 2,
         height: 1,
         rgb: vec![0, 0, 0, 255, 255, 255],
@@ -124,8 +124,8 @@ fn long_text_is_truncated_on_a_utf8_boundary() {
 
 #[test]
 fn block_rendering_keeps_top_and_bottom_colours_in_each_cell() {
-    use ascii_scrcpy::render::{Mode, detailed_lines};
-    let frame = ascii_scrcpy::frame::Frame {
+    use screen_ascii::render::{Mode, detailed_lines};
+    let frame = screen_ascii::frame::Frame {
         width: 1,
         height: 2,
         rgb: vec![255, 0, 0, 0, 0, 255],
@@ -152,8 +152,8 @@ fn block_rendering_keeps_top_and_bottom_colours_in_each_cell() {
 
 #[test]
 fn ascii_ui_background_is_quiet_and_dark_detail_stays_visible() {
-    use ascii_scrcpy::render::{Mode, detailed_lines};
-    let frame = ascii_scrcpy::frame::Frame {
+    use screen_ascii::render::{Mode, detailed_lines};
+    let frame = screen_ascii::frame::Frame {
         width: 2,
         height: 1,
         rgb: vec![25, 25, 25, 70, 70, 70],
