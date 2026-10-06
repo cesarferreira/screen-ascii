@@ -13,7 +13,7 @@ use std::{
 #[command(
     version,
     about,
-    after_help = "Controls: click to tap, drag to swipe, wheel to scroll.\nb/Esc: Back · h: Home · r: Recents · p: Power · t: type text\na: switch ASCII/blocks · c: toggle colour · i: invert · q/Ctrl+C: quit\nText mode: Enter sends text; Esc cancels. Android requires USB debugging."
+    after_help = "Controls: click to tap, drag to swipe, wheel to scroll.\nb/Esc: Back · h: Home · r: Recents · p: Power · t: type text\na: cycle renderers · c: toggle colour · i: invert · q/Ctrl+C: quit\nText mode: Enter sends text; Esc cancels. Android requires USB debugging."
 )]
 struct Cli {
     /// Select an Android device by its adb serial
@@ -31,7 +31,7 @@ struct Cli {
     /// Use monochrome rendering (ASCII output contains no ANSI colours)
     #[arg(long)]
     no_color: bool,
-    /// Screen renderer: detailed coloured blocks or literal ASCII
+    /// Screen renderer: full pixel graphics, coloured blocks, or literal ASCII
     #[arg(long, value_enum, default_value_t = screen_ascii::render::Mode::Blocks)]
     render: screen_ascii::render::Mode,
     /// Reverse the brightness-to-character mapping
@@ -44,7 +44,7 @@ struct Cli {
     #[arg(long, default_value_t = 0.5)]
     char_aspect: f32,
     /// Limit captured screen's longest edge in pixels
-    #[arg(short = 'm', long, default_value_t = 1024, value_parser = clap::value_parser!(u16).range(64..=4096))]
+    #[arg(short = 'm', long, default_value_t = 2048, value_parser = clap::value_parser!(u16).range(64..=4096))]
     max_size: u16,
     /// Maximum capture and display frame rate
     #[arg(long, default_value_t = 30, value_parser = clap::value_parser!(u16).range(1..=120))]
@@ -90,6 +90,10 @@ fn main() -> Result<()> {
         ensure!(status.success(), "adb devices failed");
         return Ok(());
     }
+    ensure!(
+        !cli.snapshot || !matches!(cli.render, screen_ascii::render::Mode::Graphics),
+        "Graphics mode requires an interactive terminal; use --render blocks or ascii for snapshots."
+    );
     if !cli.snapshot {
         ensure!(
             std::io::stdin().is_terminal() && std::io::stdout().is_terminal(),
@@ -102,6 +106,13 @@ fn main() -> Result<()> {
     }
     #[cfg(unix)]
     signal_hook::flag::register(signal_hook::consts::SIGHUP, Arc::clone(&cancelled))?;
+    if matches!(cli.render, screen_ascii::render::Mode::Graphics) {
+        screen_ascii::graphics::check_terminal(&cancelled)?;
+    }
+    ensure!(
+        !cancelled.load(std::sync::atomic::Ordering::Relaxed),
+        "Connection cancelled"
+    );
     let session = if cli.demo {
         None
     } else {

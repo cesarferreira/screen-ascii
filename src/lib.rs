@@ -6,3 +6,5 @@ pub mod render;
 pub mod input;
 pub mod session;
 pub mod video;
+
+pub mod graphics;

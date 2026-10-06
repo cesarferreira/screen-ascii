@@ -14,8 +14,11 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1"
+base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
 crossterm = "0.29"
+libc = "0.2"
+png = "0.17"
 signal-hook = "0.3"
 
 [profile.release]

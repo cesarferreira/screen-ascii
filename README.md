@@ -58,6 +58,9 @@ cargo run --release -- --serial emulator-5554
 cargo run --release -- --render ascii --no-color
 cargo run --release -- --max-size 640 --max-fps 15
 
+# Full pixel graphics for readable phone text (Kitty-compatible terminal)
+cargo run --release -- --render graphics
+
 # Try the renderer without a phone
 cargo run --release -- --demo
 
@@ -79,16 +82,18 @@ cargo run --release -- --snapshot --render ascii --no-color --cols 120 --rows 50
 | Arrow keys | Android directional keys |
 | Enter / Backspace | Android Enter / Delete |
 | `t` | Enter text mode; type or paste, then Enter to send; Escape cancels |
-| `a` | Switch between detailed blocks and literal ASCII |
+| `a` | Cycle graphics (when enabled), ASCII, and blocks |
 | `c` | Toggle colour (blocks use grayscale when disabled) |
 | `i` | Invert character brightness |
 | `q` / Ctrl+C | Quit |
+
+Use `--render graphics` in a terminal supporting the [Kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/) for full pixel frames and readable text. The app probes support before connecting and reports an error if the terminal does not respond. Graphics uses lossless PNG transmission, fits the image to the terminal, and retains click/drag controls. Capture defaults to a 2048-pixel longest edge; use `--max-size 4096` for more source detail if needed. Maximize the window for more displayed pixels. Graphics requires an interactive Unix terminal and cannot be used with `--snapshot`; terminal multiplexers may need graphics passthrough support.
 
 The default renderer uses coloured half-block characters, preserving two independent pixels per terminal cell. Use `--render ascii` for literal ASCII; it suppresses dark background speckle and lifts dim foreground colours. Press `a` to switch modes during a session.
 
 Clicks map to the centre of each character cell. The view preserves the phone's proportions and responds to terminal resizing and device rotation. Reduce the terminal font size for more detail. `--char-aspect` adjusts character proportions (default `0.5`); `--ramp` sets the ASCII characters from dark to bright.
 
-Text mode uses scrcpy's text injection. Android input-method limitations apply: arbitrary Unicode, emoji, and composing input are not guaranteed. This is a visual conversion of the phone's pixels; small UI text remains ASCII artwork rather than readable OCR text. Audio, clipboard synchronization, and multitouch are outside this first version.
+Text mode uses scrcpy's text injection. Android input-method limitations apply: arbitrary Unicode, emoji, and composing input are not guaranteed. This is a visual conversion of the phone's pixels; ASCII and block modes cannot preserve small UI text as readable text; graphics displays the actual pixels without OCR. Audio, clipboard synchronization, and multitouch are outside this first version.
 
 ### Server discovery
 
@@ -166,3 +171,11 @@ The pre-release hook regenerates `CHANGELOG.md` with `git-cliff` from your conve
 ## License
 
 MIT
+
+Graphics protocol and terminal cleanup can be checked without a phone:
+
+```sh
+python3 scripts/smoke-graphics.py --binary /path/to/screen-ascii
+python3 scripts/smoke-graphics.py --binary /path/to/screen-ascii --case unsupported
+python3 scripts/smoke-graphics.py --binary /path/to/screen-ascii --case signal
+```

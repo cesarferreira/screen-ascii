@@ -31,3 +31,13 @@ fn invalid_render_and_capture_options_fail_before_connecting() {
         assert!(!result.status.success());
     }
 }
+
+#[test]
+fn graphics_snapshot_is_rejected_before_connecting() {
+    let result = run(&["--demo", "--snapshot", "--render", "graphics"]);
+    assert!(!result.status.success());
+    assert!(
+        String::from_utf8_lossy(&result.stderr)
+            .contains("Graphics mode requires an interactive terminal")
+    );
+}

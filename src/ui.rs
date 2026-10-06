@@ -13,7 +13,8 @@ use crossterm::{
     },
 };
 use screen_ascii::{
-    frame::Frame, geometry::Viewport, input::TouchState, protocol, render, session::Session,
+    frame::Frame, geometry::Viewport, graphics, input::TouchState, protocol, render,
+    session::Session,
 };
 use std::{
     io::{self, IsTerminal, Write},
@@ -54,6 +55,7 @@ impl Terminal {
 }
 impl Drop for Terminal {
     fn drop(&mut self) {
+        let _ = io::stdout().write_all(graphics::DELETE.as_bytes());
         let _ = execute!(
             io::stdout(),
             EndSynchronizedUpdate,
@@ -121,6 +123,7 @@ pub fn run(
         io::stdin().is_terminal() && io::stdout().is_terminal(),
         "Interactive mode needs a terminal. Use --snapshot for plain output."
     );
+    let graphics_enabled = matches!(options.mode, render::Mode::Graphics);
     let _terminal = Terminal::enter()?;
     let mut out = io::stdout();
     let mut touch = TouchState::default();
@@ -163,8 +166,13 @@ pub fn run(
                 force_draw = true;
             }
             if force_draw || (sequence != last_sequence && last_draw.elapsed() >= interval) {
-                let viewport =
-                    Viewport::fit(size.0, size.1, frame.width, frame.height, options.aspect);
+                let viewport = Viewport::fit(
+                    size.0,
+                    size.1,
+                    frame.width,
+                    frame.height,
+                    effective_aspect(&options),
+                );
                 let label = session
                     .as_ref()
                     .map(|session| session.serial.as_str())
@@ -268,7 +276,8 @@ pub fn run(
                     KeyCode::Char('a') => {
                         options.mode = match options.mode {
                             render::Mode::Ascii => render::Mode::Blocks,
-                            render::Mode::Blocks => render::Mode::Ascii,
+                            render::Mode::Blocks if graphics_enabled => render::Mode::Graphics,
+                            render::Mode::Blocks | render::Mode::Graphics => render::Mode::Ascii,
                         };
                         force_draw = true;
                         None
@@ -303,6 +312,18 @@ pub fn run(
         }
     }
     Ok(())
+}
+
+fn effective_aspect(options: &Options) -> f32 {
+    if matches!(options.mode, render::Mode::Graphics) {
+        if let Ok(size) = terminal::window_size() {
+            if size.width > 0 && size.height > 0 && size.columns > 0 && size.rows > 0 {
+                return (f32::from(size.width) / f32::from(size.columns))
+                    / (f32::from(size.height) / f32::from(size.rows));
+            }
+        }
+    }
+    options.aspect
 }
 
 fn send_text(session: &mut Session, mut text: &str) -> Result<()> {
@@ -340,6 +361,12 @@ fn draw(
         out,
         Print(header.chars().take(size.0 as usize).collect::<String>())
     )?;
+    if matches!(options.mode, render::Mode::Graphics) {
+        queue!(out, MoveTo(view.x, view.y))?;
+        graphics::write_frame(out, frame, view, options.color, options.invert)?;
+    } else {
+        out.write_all(graphics::DELETE.as_bytes())?;
+    }
     for (row, line) in render::detailed_lines(
         frame,
         view,
@@ -356,7 +383,7 @@ fn draw(
     let footer = typing
         .map(|text| format!(" Text: {text}  [Enter sends · Esc cancels]"))
         .unwrap_or_else(|| {
-            " click/drag · b Back · h Home · r Recents · t Type · a ASCII/Blocks · c Colour · i Invert · q Quit"
+            " click/drag · b Back · h Home · r Recents · t Type · a Renderer · c Colour · i Invert · q Quit"
                 .to_owned()
         });
     queue!(

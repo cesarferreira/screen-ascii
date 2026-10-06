@@ -5,6 +5,7 @@ use std::fmt::Write;
 pub enum Mode {
     Ascii,
     Blocks,
+    Graphics,
 }
 pub fn detailed_lines(
     frame: &Frame,
@@ -17,6 +18,7 @@ pub fn detailed_lines(
     match mode {
         Mode::Ascii => ascii_detail(frame, view, ramp, color, invert),
         Mode::Blocks => blocks(frame, view, color, invert),
+        Mode::Graphics => Vec::new(),
     }
 }
 
